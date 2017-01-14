@@ -4,7 +4,19 @@ import svgwrite as svg
 class SVGContainer(object):
 
     def __init__(self,tree):
-        self.tree=etree.ElementTree(etree.fromstring(tree))
+        node = etree.fromstring(tree)
+        x = node[:]
+
+        root = etree.Element("g")
+        root.extend(x)
+        self.g=root
+        script = etree.Element("script")
+        script.set('href',"SVGPan.js")
+        #root.set('href',"SVGPan.js")
+        node.append(script)
+        node.append(root)
+        self.g = root
+        self.tree=etree.ElementTree(node)
 
     @staticmethod
     def from_file(path):
@@ -40,6 +52,7 @@ class SVGContainer(object):
                 self.change_property(elem,prop,val)
 
     def save(self,file):
+
         with open(file,"w") as f:
             self.tree.write(f,pretty_print=True)
 
@@ -56,6 +69,6 @@ class SVGContainer(object):
 
     def add_circle(self,Circle,col='blue',opac=0.5):
         c = svg.shapes.Circle(*Circle.get_svg_format(),fill=col,opacity=opac)
-        self.tree.getroot().append(etree.fromstring(c.tostring()))
+        self.g.append(etree.fromstring(c.tostring()))
 
 
